@@ -19,11 +19,11 @@ import sys
 import time
 import enquiries
 import hashlib
-from twilio.rest import TwilioRestClient
+from twilio.rest import Client
 from termcolor import colored
 from datetime import datetime
 
-smsClient = TwilioRestClient()
+smsClient = Client()
 
 line = "*" * 50
 baseline_path = "./baselines"

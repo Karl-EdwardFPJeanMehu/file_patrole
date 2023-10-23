@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """\
-This is a basic agented, 
+This is a basic agented,
 standalone File Integrity Monitor
 that checks whether files are either
 deleted, modified or added
@@ -19,11 +19,12 @@ import sys
 import time
 import enquiries
 import hashlib
-from twilio.rest import Client
-from termcolor import colored
 from datetime import datetime
+from dotenv import load_dotenv
+from lib import log_listener, event
 
-smsClient = Client()
+#  Listen to loger events
+log_listener.setup_log_event_handlers()
 
 line = "*" * 50
 baseline_path = "./baselines"
@@ -44,8 +45,8 @@ def calc_file_hash(file_path, hash_algorithm="sha256"):
     except ValueError as e:
         print('Failed calculating hash for ', file_path)
 
-#  recursively obtain a list of all file paths and 
-#  their hashes in the given or cwd 
+#  recursively obtain a list of all file paths and
+#  their hashes in the given or cwd
 def list_files_recursively(skip_file_name, directory = "./"):
     file_list = []
 
@@ -72,12 +73,12 @@ def create_new_baseline():
     file_name = "baseline_" + timestamp + ".txt"
     file_path = os.path.join(baseline_path, file_name)
 
-    #  Ensure the baseline path exists 
+    #  Ensure the baseline path exists
     #  if not create it
     if not os.path.exists(baseline_path):
         os.makedirs(baseline_path)
 
-    #  Check whether the baseline file exists 
+    #  Check whether the baseline file exists
     #  if so throw an error
     try:
         if not os.path.exists(file_path):
@@ -85,7 +86,6 @@ def create_new_baseline():
                 contents = list_files_recursively(skip_file_name=os.path.basename(__file__), directory="./")
                 for value in contents:
                     f.write(str(value) + "\n")
-
             print("Baseline file created!")
         else:
             raise ValueError(F"Invalid baseline file, '{file_path}', detected!")
@@ -121,7 +121,7 @@ def selected_baseline_file():
 #  Use the existing baseline or display a menu
 #  to choose from existing ones before monitoring begins
 def load_baseline():
-    #  Make sure no baseline is already loaded 
+    #  Make sure no baseline is already loaded
     loaded_baseline = {}
     try:
         selected_baseline = selected_baseline_file()
@@ -135,17 +135,8 @@ def load_baseline():
 
                 loaded_baseline[key] = value
 
-            print('Baseline loaded!\n')
-
         time.sleep(3)
         print(f"{line}\r\nNow monitoring integrity of file(s)...")
-
-        print('sending sms')
-        smsClient.message.create(
-            from_="(509)36888755",
-            to="(509)36881455",
-            body="(509)36888755"
-        )
 
         last_seen = []
 
@@ -155,19 +146,22 @@ def load_baseline():
 
             for file in files:
                 file_path = file.split('|')[0].strip()
+                file_name = os.path.basename(file_path)
                 file_hash = file.split('|')[1].strip()
 
                 if file_path not in loaded_baseline:
                     if file_path not in last_seen:
-                        print(colored(f"The file {file_path} has been added!\r\n", 'green'))
-                        last_seen.append(file_path)
+                        event.post_event('File_added', {"file_path": file_path, "file_hash": file_hash})
+                        #  last_seen.append(file_path)
                 elif calc_file_hash(file_path) != loaded_baseline[file_path]:
                     if file_path not in last_seen:
-                        print(colored(f"The file {file} has been modified!\r\n", 'yellow'))
-                        last_seen.append(file_path)
+                        event.post_event('File_modified', {"file_path": file_path, "file_hash": file_hash})
+                        #  last_seen.append(file_path)
+
+                last_seen.append(file_path)
 
     except Exception as e:
-        print("Error: ", e) 
+        print("Error: ", e)
 
 def show_menu():
     global choice
@@ -199,4 +193,3 @@ def show_menu():
 
 while choice is None:
     show_menu()
-

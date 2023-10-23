@@ -41,7 +41,7 @@ def calc_file_hash(file_path, hash_algorithm="sha256"):
                     break
                 hash_object.update(data)
         return hash_object.hexdigest().strip()
-    except Exception as e:
+    except ValueError as e:
         print('Failed calculating hash for ', file_path)
 
 #  recursively obtain a list of all file paths and 
@@ -89,7 +89,7 @@ def create_new_baseline():
             print("Baseline file created!")
         else:
             raise ValueError(F"Invalid baseline file, '{file_path}', detected!")
-    except Exception as e:
+    except ValueError as e:
         print("Error: ", e)
 
 

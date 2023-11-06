@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Provides basic file integrity
+
+This is a basic agented, standalone File Integrity Monitor
+that checks whether files are either deleted, modified or added
+"""
 
 #  The MIT License (MIT) with Attribution and Liability Protection
 
@@ -23,18 +28,6 @@
    #  FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
    #  IN THE SOFTWARE.
 
-"""\
-This is a basic agented,
-standalone File Integrity Monitor
-that checks whether files are either
-deleted, modified or added
-
-Author: Karl-Edward F. P. Jean-Mehu
-Email: kwebdever@protonmail.com
-Date: Oct 4, 2023
-"""
-#  File Integrity Monitor (FIM)
-
 import os
 import sys
 import time
@@ -43,6 +36,24 @@ import hashlib
 from datetime import datetime
 from dotenv import load_dotenv
 from lib import log_listener, event
+
+
+__author__ = "Karl-Edward F. P. Jean-Mehu"
+__credits__ = "Karl-Edward F. P. Jean-Mehu"
+__copyright__ = "Copyright 2023, Karl-Edward F. P. Jean-Mehu"
+__maintainer__ = "Copyright 2023, Karl-Edward F. P. Jean-Mehu"
+__license__ = "MIT"
+__email__ = "kwebdever@protonmail.com"
+__status__ = "Development"
+
+"""\
+This is a basic agented,
+standalone File Integrity Monitor
+that checks whether files are either
+deleted, modified or added
+
+Date: Oct 4, 2023
+"""
 
 #  Listen to loger events
 log_listener.setup_log_event_handlers()

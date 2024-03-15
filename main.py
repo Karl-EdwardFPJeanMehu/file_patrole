@@ -33,7 +33,7 @@ import sys
 import time
 import enquiries
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from lib import log_listener, event
 
@@ -99,7 +99,7 @@ def list_files_recursively(skip_file_name, directory = "./"):
 def create_new_baseline():
     print("\r\n\r\n", line)
 
-    timestamp = str(datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
 
     print("Creating new baseline in CWD...")
     file_name = "baseline_" + timestamp + ".txt"

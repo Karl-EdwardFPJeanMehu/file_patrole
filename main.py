@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""Provides basic file integrity
-
-This is a basic agented, standalone File Integrity Monitor
-that checks whether files are either deleted, modified or added
-"""
 
 #  The MIT License (MIT) with Attribution and Liability Protection
 
@@ -127,7 +122,7 @@ def create_new_baseline():
                     f.write(str(value) + "\n")
             print("baseline file created!")
         else:
-            raise ValueError(F"Invalid baseline file, '{file_path}', detected!")
+            raise ValueError(f"Invalid baseline file, '{file_path}', detected!")
     except ValueError as e:
         print("error: ", e)
 

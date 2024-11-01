@@ -64,6 +64,11 @@ monitor_dir = os.environ.get("PT_MONITOR_DIR", "./")
 ignored_dirs = os.environ.get("PT_IGNORED_DIRS", f"{os.path.dirname(baseline_path)}, .git").split(",")
 
 curFile = os.path.dirname(os.path.abspath('__file__'))
+
+def quit():
+    print("Bye!")
+    sys.exit(1)
+
 #  Calculate and return the hash of a file
 def calc_file_hash(file_path, hash_algorithm="sha256"):
     try:
@@ -222,8 +227,7 @@ def show_menu():
         load_baseline()
         #  print(f"Now monitoring integrity of files in {os.getcwd()}")
     else:
-        print("Bye!")
-        sys.exit(1)
+        quit()
 
 while choice is None:
     show_menu()

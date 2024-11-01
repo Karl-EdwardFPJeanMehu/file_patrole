@@ -31,6 +31,7 @@ import hashlib
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 from lib import log_listener, event
+import threading
 
 
 __author__ = "Karl-Edward F. P. Jean-Mehu"
@@ -156,6 +157,27 @@ def selected_baseline_file():
         selected_baseline = enquiries.choose("Select a baseline: ", existing_baseline_files)
         return selected_baseline
 
+def start_monitoring_worker():
+    # monitoring
+    last_seen = []
+
+    while (True):
+        """ begin monitoring files """
+        files = list_files_recursively(skip_file_name=curFile)
+
+        for file in files:
+            file_path = file.split('|')[0].strip()
+            file_name = os.path.basename(file_path)
+            file_hash = file.split('|')[1].strip()
+
+            if file_path not in loaded_baseline:
+                if file_path not in last_seen:
+                    event.post_event('File_added', {"file_path": file_path, "file_hash": file_hash})
+            elif calc_file_hash(file_path) != loaded_baseline[file_path]:
+                if file_path not in last_seen:
+                    event.post_event('File_modified', {"file_path": file_path, "file_hash": file_hash})
+
+            last_seen.append(file_path)
 
 #  Use the existing baseline or display a menu
 #  to choose from existing ones before monitoring begins
@@ -177,27 +199,8 @@ def load_baseline():
         time.sleep(3)
         print(f"{line}\r\nNow monitoring integrity of file(s)...")
 
-        last_seen = []
-
-        while(True):
-            """ BEGIN MONITORING FILES """
-            files = list_files_recursively(skip_file_name=os.path.basename(__file__), directory="./")
-
-            for file in files:
-                file_path = file.split('|')[0].strip()
-                file_name = os.path.basename(file_path)
-                file_hash = file.split('|')[1].strip()
-
-                if file_path not in loaded_baseline:
-                    if file_path not in last_seen:
-                        event.post_event('File_added', {"file_path": file_path, "file_hash": file_hash})
-                        #  last_seen.append(file_path)
-                elif calc_file_hash(file_path) != loaded_baseline[file_path]:
-                    if file_path not in last_seen:
-                        event.post_event('File_modified', {"file_path": file_path, "file_hash": file_hash})
-                        #  last_seen.append(file_path)
-
-                last_seen.append(file_path)
+        """ MONITORING """
+        threading.Thread(target=start_monitoring_worker, daemon=False).start()
 
     except Exception as e:
         print("Error: ", e)

@@ -1,1 +1,1 @@
-__all__ = ['event', 'log_listener', 'logger']
+__all__ = ['event', 'log_listener', 'logger', 'utils']

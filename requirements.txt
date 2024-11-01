@@ -1,0 +1,17 @@
+blessings==1.7
+click==7.1.2
+curtsies==0.3.10
+cwcwidth==0.1.9
+DateTime==5.4
+distlib==0.3.8
+enquiries==0.2.0
+filelock==3.13.1
+platformdirs==4.2.0
+python-dotenv==1.0.1
+pytz==2024.1
+setuptools==69.2.0
+six==1.16.0
+termcolor==2.4.0
+virtualenv==20.25.1
+wheel==0.43.0
+zope.interface==6.2

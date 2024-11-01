@@ -7,7 +7,7 @@ log_location = "log.txt"
 
 def handle_file_added_event(data):
     file_path = data["file_path"]
-    file_hash= data["file_hash"]
+    file_hash = data["file_hash"]
     file_name = path.basename(data["file_path"])
     description = "The file, {file_name}, found at {file_path} has been added by user, pete"
 
@@ -18,7 +18,7 @@ def handle_file_added_event(data):
 
 def handle_file_modified_event(data):
     file_path = data["file_path"]
-    file_hash= data["file_hash"]
+    file_hash = data["file_hash"]
     file_name = path.basename(data["file_path"])
     description = "The file, {file_name}, found at {file_path} has been modified by user, pete"
 

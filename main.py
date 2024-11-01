@@ -62,6 +62,13 @@ line = "*" * 50
 baseline_path = "./baselines"
 choice = None
 
+# Directory to monitor:
+monitor_dir = os.environ.get("PT_MONITOR_DIR", "./")
+
+# Directory to ignore:
+ignored_dirs = os.environ.get("PT_IGNORED_DIRS", f"{os.path.dirname(baseline_path)}, .git").split(",")
+
+curFile = os.path.dirname(os.path.abspath('__file__'))
 #  Calculate and return the hash of a file
 def calc_file_hash(file_path, hash_algorithm="sha256"):
     try:
@@ -79,13 +86,13 @@ def calc_file_hash(file_path, hash_algorithm="sha256"):
 
 #  recursively obtain a list of all file paths and
 #  their hashes in the given or cwd
-def list_files_recursively(skip_file_name, directory = "./"):
+def list_files_recursively(skip_file_name, directory = monitor_dir):
     file_list = []
 
     for root, _, files in os.walk(directory):
         for file in files:
             # Check if the root directory is the "baseline" directory.
-            if (os.path.basename(root) == os.path.basename(baseline_path)) or file == skip_file_name:
+            if (os.path.dirname(os.path.abspath(root)) in ignored_dirs ) or file == skip_file_name:
                 continue  # Skip the file in the "baseline" directory.
 
             file_path = os.path.join(root, file).strip()
@@ -115,7 +122,7 @@ def create_new_baseline():
     try:
         if not os.path.exists(file_path):
             with open(file_path, 'w') as f:
-                contents = list_files_recursively(skip_file_name=os.path.basename(__file__), directory="./")
+                contents = list_files_recursively(skip_file_name=curFile)
                 for value in contents:
                     f.write(str(value) + "\n")
             print("baseline file created!")

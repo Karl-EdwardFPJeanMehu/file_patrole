@@ -26,7 +26,6 @@ def log(log_location: str, file_location: str, user: str, control_hash: str, fil
 
     Description: {description}
     {"="*50}
-    \r\n
     """
 
     #  Write log to file

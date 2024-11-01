@@ -30,7 +30,7 @@ import enquiries
 import hashlib
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-from lib import log_listener, event
+from lib import log_listener, event, utils
 import threading
 
 
@@ -233,4 +233,5 @@ def show_menu():
         quit()
 
 while choice is None:
+    utils.banner()
     show_menu()

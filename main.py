@@ -118,16 +118,16 @@ def create_new_baseline():
                 contents = list_files_recursively(skip_file_name=os.path.basename(__file__), directory="./")
                 for value in contents:
                     f.write(str(value) + "\n")
-            print("Baseline file created!")
+            print("baseline file created!")
         else:
             raise ValueError(F"Invalid baseline file, '{file_path}', detected!")
     except ValueError as e:
-        print("Error: ", e)
+        print("error: ", e)
 
 
 loaded_baseline = {}
 
-#  Return existing baselines if they
+#  return existing baselines if they
 #  exist
 def get_baseline_files():
     existing_baseline_files = []

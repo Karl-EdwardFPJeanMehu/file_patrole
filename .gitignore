@@ -2,4 +2,4 @@
 bin/
 *.cfg
 **/__pycache__
-lib/
+lib/python*/

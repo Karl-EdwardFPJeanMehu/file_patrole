@@ -44,6 +44,7 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 from lib import log_listener, event, utils
 import threading
+from config import Config
 
 
 __author__ = "Karl-Edward F. P. Jean-Mehu"
@@ -67,12 +68,13 @@ Date: Oct 4, 2023
 log_listener.setup_log_event_handlers()
 
 line = "*" * 50
-baseline_path = "./baselines"
+config = Config()
+baseline_path = config.get("BASELINE_PATH") 
 choice = None
 loaded_baseline = {}
 
 # Directory to monitor:
-monitor_dir = os.environ.get("PT_MONITOR_DIR", "./")
+monitor_dir = config.get("MONITOR_DIR")
 
 # Directory to ignore:
 ignored_dirs = os.environ.get("PT_IGNORED_DIRS", f"{os.path.dirname(baseline_path)}, .git").split(",")

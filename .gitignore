@@ -1,5 +1,6 @@
 .env
 bin/
+baseline/
 *.cfg
 **/__pycache__
 lib/python*/

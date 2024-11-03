@@ -16,7 +16,7 @@ def normalize_path(path):
 
 def banner():
     print(f"""{"=" * 80}
-    \r\n FilePatrole v1.0
+    \r\n FilePatrole v1.1.1
     \r\n Copyright (c) 2023, Karl-Edward F. P. Jean-Mehu <kwebdever@protonmail.com>
     \r\n This is a basic agented, standalone File Integrity Monitor that checks whether
     \r\n files are either deleted, modified or added.

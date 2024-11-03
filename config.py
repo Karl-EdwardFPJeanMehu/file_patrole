@@ -34,6 +34,5 @@ class Config:
         return self.config.get(key)
 
     def set(self, key, value):
-        print(f"Setting config '{key}' to '{value}'")
         os.environ[key] = value
         self.config[key] = value

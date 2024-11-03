@@ -30,7 +30,6 @@ def get_file_encoding(file_path):
         content = file.read()
         result = chardet.detect(content)
         encoding = result['encoding']
-        print(f"File encoding: {encoding}")
     return encoding
 
 def is_valid_baseline_file(file_path):

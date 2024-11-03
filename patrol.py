@@ -23,16 +23,6 @@
    #  FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
    #  IN THE SOFTWARE.
 
-"""\
-This is a basic agented,
-standalone File Integrity Monitor
-that checks whether files are either
-deleted, modified or added
-
-Author: Karl-Edward F. P. Jean-Mehu
-Email: kwebdever@protonmail.com
-Date: Oct 4, 2023
-"""
 #  File Integrity Monitor (FIM)
 
 import os

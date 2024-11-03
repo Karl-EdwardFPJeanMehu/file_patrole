@@ -69,6 +69,7 @@ log_listener.setup_log_event_handlers()
 line = "*" * 50
 baseline_path = "./baselines"
 choice = None
+loaded_baseline = {}
 
 # Directory to monitor:
 monitor_dir = os.environ.get("PT_MONITOR_DIR", "./")
@@ -119,7 +120,7 @@ def list_files_recursively(skip_file_name, directory = monitor_dir):
 def create_new_baseline():
     print("\r\n\r\n", line)
 
-    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d')
 
     print("Creating new baseline in CWD...")
     file_name = "baseline_" + timestamp + ".txt"
@@ -133,19 +134,16 @@ def create_new_baseline():
     #  Check whether the baseline file exists
     #  if so throw an error
     try:
-        if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+        if os.path.isdir(baseline_path):
+            with open(file_path, 'a') as f:
                 contents = list_files_recursively(skip_file_name=curFile)
                 for value in contents:
                     f.write(str(value) + "\n")
             print("baseline file created!")
         else:
-            raise ValueError(f"Invalid baseline file, '{file_path}', detected!")
+            raise ValueError(f"Baseline path '{baseline_path}' does not exist!")
     except ValueError as e:
         print("error: ", e)
-
-
-loaded_baseline = {}
 
 #  return existing baselines if they
 #  exist
@@ -154,7 +152,10 @@ def get_baseline_files():
 
     for root, _, files in os.walk(baseline_path):
         for f in files:
-            existing_baseline_files.append(os.path.join(root, f))
+            if (utils.is_valid_baseline_file(f)):
+                existing_baseline_files.append(os.path.join(root, f))
+            else:
+                print(f"Invalid baseline file, '{f}', detected!")
 
     return existing_baseline_files
 
@@ -185,6 +186,7 @@ def start_monitoring_worker():
             if file_path not in loaded_baseline:
                 if file_path not in last_seen:
                     event.post_event('File_added', {"file_path": file_path, "file_hash": file_hash})
+                    utils.update_baseline_file(file_path, file_hash)
             elif calc_file_hash(file_path) != loaded_baseline[file_path]:
                 if file_path not in last_seen:
                     event.post_event('File_modified', {"file_path": file_path, "file_hash": file_hash})
@@ -194,14 +196,15 @@ def start_monitoring_worker():
 #  Use the existing baseline or display a menu
 #  to choose from existing ones before monitoring begins
 def load_baseline():
-    #  Make sure no baseline is already loaded
-    loaded_baseline = {}
     try:
         selected_baseline = selected_baseline_file()
+        config.set("SELECTED_BASELINE_FILE", selected_baseline)
 
-        with open(selected_baseline, 'r') as file:
+        encoding = utils.get_file_encoding(selected_baseline)
+
+        with open(selected_baseline, 'r', encoding=encoding) as file:
             for file_line in file:
-                fields = file_line.strip().split('|')
+                fields = file_line.split('|')
 
                 key = fields[0].strip()
                 value = fields[1].strip()

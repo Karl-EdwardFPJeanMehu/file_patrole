@@ -112,7 +112,7 @@ def list_files_recursively(skip_file_name, directory = monitor_dir):
 def create_new_baseline():
     print("\r\n\r\n", line)
 
-    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    timestamp = utils.get_current_timestamp()
 
     print("Creating new baseline in CWD...")
     file_name = "baseline_" + timestamp + ".txt"

@@ -1,11 +1,10 @@
 from os import path, getlogin, environ
 from .logger import log
 from .event import subscribe
-from .utils import normalize_path
+from .utils import normalize_path, get_timestamp
 from termcolor import colored
-import datetime
 
-current_date = datetime.date.today().strftime("%d-%m-%Y")
+current_date = get_timestamp()
 log_directory = environ.get("PT_LOG_LOCATION", './')
 log_file_name = 'log_' + current_date + '.txt'
 log_path = normalize_path(log_directory +'/'+ log_file_name)

@@ -1,5 +1,6 @@
 import os, re, chardet
 from config import Config
+import datetime
 
 def normalize_path(path):
     """Normalizes a path and removes double slashes.
@@ -63,4 +64,6 @@ def update_baseline_file(file_path, file_hash):
             else:
                 raise (f"Error updating missing baseline file '{selected_baseline_file}'.")
 
+def get_timestamp():
+    return datetime.date.today().strftime("%d-%m-%Y")
 

@@ -15,12 +15,12 @@ class Config:
         # config_dir = os.path.dirname(os.path.abspath(__file__))
         # root_dir = os.path.dirname(__file__)
 
-        self.config = {
+        self.config: dict = {
             "BASELINE_PATH": os.environ.get("PT_BASELINE_PATH", "./baseline"),
             "MONITOR_DIR": os.environ.get("PT_MONITOR_DIR", "./"),
         }
 
-    def get(self, key):
+    def get(self, key: str) -> str:
         # Returns the value of the specified key
         # if not it throws an error
         if key not in self.config:
@@ -31,7 +31,7 @@ class Config:
             else:
                 self.config[key] = os.environ.get(key)
 
-        return self.config.get(key)
+        return self.config.get(key) or ""
 
     def set(self, key, value):
         os.environ[key] = value

@@ -59,7 +59,7 @@ log_listener.setup_log_event_handlers()
 
 line = "*" * 50
 config = Config()
-baseline_path = config.get("BASELINE_PATH") 
+baseline_path = str(config.get("BASELINE_PATH"))
 choice = None
 loaded_baseline = {}
 

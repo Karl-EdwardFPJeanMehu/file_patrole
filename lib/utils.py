@@ -1,6 +1,8 @@
-import os, re, chardet
-from config import Config
+import os
+import re
+import chardet
 import datetime
+from config import Config
 
 def normalize_path(path):
     """Normalizes a path and removes double slashes.

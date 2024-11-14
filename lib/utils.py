@@ -5,6 +5,10 @@ import chardet
 import datetime
 from config import Config
 
+class UpdateBaselineException(Exception):
+    pass
+
+
 def normalize_path(path):
     """Normalizes a path and removes double slashes.
 
@@ -66,7 +70,7 @@ def update_baseline_file(file_path, file_hash):
                 content = f"{file_path} | {file_hash}\n"
                 file.write(content)
             else:
-                raise (f"Error updating missing baseline file '{selected_baseline_file}'.")
+                raise UpdateBaselineException(f"Error updating missing baseline with file '{selected_baseline_file}'.")
 
 def get_timestamp():
     return datetime.date.today().strftime("%d-%m-%Y")

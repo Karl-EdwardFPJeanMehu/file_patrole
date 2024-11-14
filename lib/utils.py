@@ -15,7 +15,8 @@ def normalize_path(path):
     """
 
     normalized_path = os.path.normpath(path)
-    return normalized_path.replace('//', '/')
+    return normalized_path.replace("//", "/")
+
 
 def banner():
     print(f"""{"=" * 80}
@@ -29,10 +30,10 @@ def banner():
 
 def get_file_encoding(file_path):
     #  Get file encoding
-    with open(file_path, 'rb') as file:
+    with open(file_path, "rb") as file:
         content = file.read()
         result = chardet.detect(content)
-        encoding = result['encoding']
+        encoding = result["encoding"]
     return encoding
 
 def is_valid_baseline_file(file_path):
@@ -40,7 +41,7 @@ def is_valid_baseline_file(file_path):
     #  valid baseline file
     #  if not throw an error
     try:
-        regex = r"^baseline_\d{4}-\d{2}-\d{2}\.txt$"
+        regex = r"^baseline_\d{2}-\d{2}-\d{4}\.txt$"
         if re.match(regex, os.path.basename(file_path)):
             return True
         else:
@@ -55,12 +56,12 @@ def update_baseline_file(file_path, file_hash):
     config = Config()
     selected_baseline_file = config.get("SELECTED_BASELINE_FILE")
     if not is_valid_baseline_file(selected_baseline_file):
-       print(f"failed updating invalid baseline file '{file_path}'")
-       return
+        print(f"failed updating invalid baseline file '{file_path}'")
+        return
 
     else:
-        with open(selected_baseline_file, 'a') as file:
-            if os.path.exists(file_path):
+        with open(selected_baseline_file, "a") as file:
+            if os.path.exists(selected_baseline_file):
                 content = f"{file_path} | {file_hash}\n"
                 file.write(content)
             else:

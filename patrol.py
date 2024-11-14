@@ -10,18 +10,18 @@
 #  subject to the following conditions:
 
 #  1. The above copyright notice and this permission notice shall be included in
-   #  all copies or substantial portions of the Software.
+#  all copies or substantial portions of the Software.
 
 #  2. Attribution Requirement: Any use, distribution, or modification of the
-   #  Software must provide clear attribution to the original author.
+#  Software must provide clear attribution to the original author.
 
-   #  THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   #  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   #  FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   #  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
-   #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
-   #  FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-   #  IN THE SOFTWARE.
+#  THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#  FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+#  FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+#  IN THE SOFTWARE.
 
 #  File Integrity Monitor (FIM)
 
@@ -57,17 +57,21 @@ Date: Oct 4, 2023
 #  Listen to loger events
 log_listener.setup_log_event_handlers()
 
-line = "*" * 50
 config = Config()
 baseline_path = str(config.get("BASELINE_PATH"))
 choice = None
 loaded_baseline = {}
 
+# Divider
+line = "*" * 50
+
 # Directory to monitor:
 monitor_dir = config.get("MONITOR_DIR")
 
 # Directory to ignore:
-ignored_dirs = os.environ.get("PT_IGNORED_DIRS", f"{os.path.dirname(baseline_path)}, .git").split(",")
+ignored_dirs: list = os.environ.get("PT_IGNORED_DIRS", f"{os.path.dirname(baseline_path)}, .git").split(",")
+
+curFile = os.path.dirname(os.path.abspath("__file__"))
 
 curFile = os.path.dirname(os.path.abspath('__file__'))
 
@@ -75,8 +79,10 @@ def quit():
     print("Bye!")
     sys.exit(1)
 
+
 #  Calculate and return the hash of a file
 def calc_file_hash(file_path, hash_algorithm="sha256"):
+
     try:
         hash_object = hashlib.new(hash_algorithm)
 
@@ -87,8 +93,11 @@ def calc_file_hash(file_path, hash_algorithm="sha256"):
                     break
                 hash_object.update(data)
         return hash_object.hexdigest().strip()
+        
     except ValueError as e:
-        print('Failed calculating hash for ', file_path)
+
+        print(f"Failed calculating hash for {file_path}. Error: {e}")
+
 
 #  recursively obtain a list of all file paths and
 #  their hashes in the given or cwd
@@ -106,10 +115,13 @@ def list_files_recursively(skip_file_name, directory = monitor_dir):
             #  Ensure file exists
             if os.path.exists(file_path):
                 file_hash = calc_file_hash(file_path)
-                file_list.append((file_path + " | " + file_hash))
+                file_list.append((f"{file_path} | {file_hash}"))
+
     return file_list
 
+
 def create_new_baseline():
+
     print("\r\n\r\n", line)
 
     timestamp = utils.get_current_timestamp()
@@ -127,15 +139,18 @@ def create_new_baseline():
     #  if so throw an error
     try:
         if os.path.isdir(baseline_path):
-            with open(file_path, 'a') as f:
+            with open(file_path, "a") as f:
                 contents = list_files_recursively(skip_file_name=curFile)
                 for value in contents:
                     f.write(str(value) + "\n")
+
             print("baseline file created!")
+
         else:
             raise ValueError(f"Baseline path '{baseline_path}' does not exist!")
     except ValueError as e:
         print("error: ", e)
+
 
 #  return existing baselines if they
 #  exist
@@ -145,15 +160,18 @@ def get_baseline_files():
     for root, _, files in os.walk(baseline_path):
         for f in files:
             if (utils.is_valid_baseline_file(f)):
+            if utils.is_valid_baseline_file(f):
                 existing_baseline_files.append(os.path.join(root, f))
             else:
                 print(f"Invalid baseline file, '{f}', detected!")
 
     return existing_baseline_files
 
+
 #  Allow user to choose baseline file
 #  if more than one exists otherwise use the one
-def selected_baseline_file():
+def selected_baseline_file() -> str:
+
     existing_baseline_files = get_baseline_files()
 
     if len(existing_baseline_files) == 1:
@@ -164,16 +182,14 @@ def selected_baseline_file():
 
 def start_monitoring_worker():
     # monitoring
-    last_seen = []
-
-    while (True):
+    while True:
         """ begin monitoring files """
         files = list_files_recursively(skip_file_name=curFile)
 
         for file in files:
-            file_path = file.split('|')[0].strip()
             file_name = os.path.basename(file_path)
-            file_hash = file.split('|')[1].strip()
+            file_path = file.split("|")[0].strip()
+            file_hash = file.split("|")[1].strip()
 
             if file_path not in loaded_baseline:
                 if file_path not in last_seen:
@@ -194,9 +210,9 @@ def load_baseline():
 
         encoding = utils.get_file_encoding(selected_baseline)
 
-        with open(selected_baseline, 'r', encoding=encoding) as file:
+        with open(selected_baseline, "r", encoding=encoding) as file:
             for file_line in file:
-                fields = file_line.split('|')
+                fields = file_line.split("|")
 
                 key = fields[0].strip()
                 value = fields[1].strip()
@@ -211,6 +227,7 @@ def load_baseline():
 
     except Exception as e:
         print("Error: ", e)
+
 
 def show_menu():
     global choice
@@ -238,6 +255,7 @@ def show_menu():
         #  print(f"Now monitoring integrity of files in {os.getcwd()}")
     else:
         quit()
+
 
 while choice is None:
     utils.banner()

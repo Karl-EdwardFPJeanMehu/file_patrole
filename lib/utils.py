@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import chardet
 import datetime
@@ -49,7 +50,7 @@ def is_valid_baseline_file(file_path):
 
     except ValueError as e:
         print("error: ", e)
-        os.sys.exit(1)
+        sys.exit(1)
 
 def update_baseline_file(file_path, file_hash):
     # Verify if the baseline file is valid

@@ -5,9 +5,9 @@ from .utils import normalize_path, get_timestamp
 from termcolor import colored
 
 current_date = get_timestamp()
-log_directory = environ.get("PT_LOG_LOCATION", './')
-log_file_name = 'log_' + current_date + '.txt'
-log_path = normalize_path(log_directory +'/'+ log_file_name)
+log_directory = environ.get("PT_LOG_LOCATION", "./")
+log_file_name = "log_" + current_date + ".txt"
+log_path = normalize_path(log_directory + "/" + log_file_name)
 
 # Current user's name
 current_user = getlogin()

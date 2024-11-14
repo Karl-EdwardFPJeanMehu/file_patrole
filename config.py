@@ -17,7 +17,7 @@ class Config:
 
         self.config: dict = {
             "BASELINE_PATH": os.environ.get("PT_BASELINE_PATH", "./baseline"),
-            "MONITOR_DIR": os.environ.get("PT_MONITOR_DIR", "./"),
+            "MONITOR_DIRS": os.environ.get("PT_MONITOR_DIRS", "./test_dir,./other_test_dir/"),
         }
 
     def get(self, key: str) -> str:
@@ -36,3 +36,10 @@ class Config:
     def set(self, key, value):
         os.environ[key] = value
         self.config[key] = value
+
+    def exists(self, key):
+        """ Checks if the specified key exists in the config """
+        if key not in self.config or self.config[key] is None:
+            return False
+        else:
+            return True

@@ -75,3 +75,5 @@ def update_baseline_file(file_path, file_hash):
 def get_timestamp():
     return datetime.date.today().strftime("%d-%m-%Y")
 
+def get_absolute_dirname(path):
+    return os.path.abspath(os.path.dirname(path))

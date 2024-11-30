@@ -16,3 +16,4 @@ virtualenv==20.25.1
 wheel==0.43.0
 zope.interface==6.2
 chardet==5.2.0
+dateutils==0.6.12

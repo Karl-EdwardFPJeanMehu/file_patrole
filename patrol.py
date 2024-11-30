@@ -134,7 +134,7 @@ def create_new_baseline():
 
     print("\r\n\r\n", line)
 
-    timestamp = utils.get_timestamp()
+    timestamp = utils.get_timestamp(True)
 
     print("Creating new baseline in CWD...")
     file_name = "baseline_" + timestamp + ".txt"

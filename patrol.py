@@ -205,7 +205,7 @@ def start_monitoring_worker():
         for file in files:
             file_path, file_hash = [f.strip() for f in file.split("|")]
 
-            file_path = utils.get_absolute_dirname(file_path)
+            file_abs_path = utils.get_absolute_dirname(file_path)
 
             if file_path not in loaded_baseline and file_path not in last_seen:
                 if file_hash not in loaded_baseline.values():

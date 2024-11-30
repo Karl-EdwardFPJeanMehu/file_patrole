@@ -2,7 +2,8 @@ import os
 import sys
 import re
 import chardet
-import datetime
+from datetime import datetime, date
+from dateutil.tz import tzlocal
 from config import Config
 
 class UpdateBaselineException(Exception):
@@ -72,8 +73,11 @@ def update_baseline_file(file_path, file_hash):
             else:
                 raise UpdateBaselineException(f"Error updating missing baseline with file '{selected_baseline_file}'.")
 
-def get_timestamp():
-    return datetime.date.today().strftime("%d-%m-%Y")
+def get_timestamp(short=False):
+    if short:
+        return date.today().strftime("%d-%m-%Y")
+    else:
+        return datetime.now(tzlocal()).isoformat()
 
 def get_absolute_dirname(path):
     return os.path.abspath(os.path.dirname(path))

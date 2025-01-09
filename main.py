@@ -60,7 +60,7 @@ log_listener.setup_log_event_handlers()
 config = Config()
 
 #  Get baseline path
-baseline_path = str(config.get("BASELINE_PATH"))
+baseline_path = str(config.get("PT_BASELINE_PATH"))
 
 #  Initialize choice
 choice = None
@@ -76,7 +76,7 @@ message_queue = Queue()
 
 
 # Directory to monitor:
-monitor_dirs = config.get("MONITOR_DIRS")
+monitor_dirs = config.get("PT_MONITOR_DIRS")
 
 # Directory to ignore:
 ignored_dirs: list = os.environ.get("PT_IGNORED_DIRS", f"{os.path.dirname(baseline_path)}, .git").split(",")
@@ -256,7 +256,7 @@ def load_baseline():
 
         time.sleep(3)
 
-        directories = json.dumps(config.get("MONITOR_DIRS"))
+        directories = json.dumps(config.get("PT_MONITOR_DIRS")).split(",")
         print(f"{line}\r\nNow monitoring integrity of file(s) in directories: {directories}...")
 
         threading.Thread(target=log_listener.message_daemon, args=(message_queue,), daemon=True).start()

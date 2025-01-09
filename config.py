@@ -16,8 +16,8 @@ class Config:
         # root_dir = os.path.dirname(__file__)
 
         self.config: dict = {
-            "BASELINE_PATH": os.environ.get("PT_BASELINE_PATH", "./baseline"),
-            "MONITOR_DIRS": os.environ.get("PT_MONITOR_DIRS", "./test_dir,./other_test_dir/"),
+            "PT_BASELINE_PATH": os.environ.get("PT_BASELINE_PATH", "./baseline"),
+            "PT_MONITOR_DIRS": os.environ.get("PT_MONITOR_DIRS", "./test_dir,./other_test_dir/"),
         }
 
     def get(self, key: str) -> str:

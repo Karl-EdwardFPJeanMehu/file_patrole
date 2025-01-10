@@ -74,7 +74,6 @@ line = "*" * 50
 # Queue for messages to be processed by a separate event handler
 message_queue = Queue()
 
-
 # Directory to monitor:
 monitor_dirs = config.get("PT_MONITOR_DIRS")
 
@@ -101,9 +100,8 @@ def calc_file_hash(file_path, hash_algorithm="sha256"):
                     break
                 hash_object.update(data)
         return hash_object.hexdigest().strip()
-        
-    except ValueError as e:
 
+    except ValueError as e:
         print(f"Failed calculating hash for {file_path}. Error: {e}")
 
 
@@ -180,11 +178,11 @@ def get_baseline_files():
 #  Allow user to choose baseline file
 #  if more than one exists otherwise use the one
 def selected_baseline_file() -> str:
-
     existing_baseline_files = get_baseline_files()
 
     if len(existing_baseline_files) == 1:
         return existing_baseline_files[0]
+
     else:
         selected_baseline = enquiries.choose("Select a baseline: ", existing_baseline_files)
         return selected_baseline[0]
@@ -256,6 +254,7 @@ def load_baseline():
 
         time.sleep(3)
 
+        # Display the absolute path of the directories being monitored
         directories = json.dumps(config.get("PT_MONITOR_DIRS")).split(",")
         print(f"{line}\r\nNow monitoring integrity of file(s) in directories: {directories}...")
 
@@ -291,7 +290,6 @@ def show_menu():
         create_new_baseline()
     elif choice == menu_options[1] and baselines_exist:
         load_baseline()
-        #  print(f"Now monitoring integrity of files in {os.getcwd()}")
     else:
         quit()
 

@@ -25,14 +25,10 @@
 
 #  File Integrity Monitor (FIM)
 
-import os
 import sys
-import time
 import json
 import enquiries
-import hashlib
-from lib import log_listener, utils, divider
-import threading
+from lib import log_listener, utils, file_handlers as fh
 from config import Config
 from queue import Queue
 
@@ -66,7 +62,7 @@ baseline_path = str(config.get("PT_BASELINE_PATH"))
 choice = None
 
 #  Initialize loaded baseline
-loaded_baseline = {}
+config.set("PT_LOADED_BASELINE", json.dumps({}))
 
 # Queue for messages to be processed by a separate event handler
 message_queue = Queue()
@@ -77,9 +73,6 @@ hash_calc_queue = Queue()
 # Directory to monitor:
 monitor_dirs = config.get("PT_MONITOR_DIRS")
 
-# Directory to ignore:
-ignored_dirs: list = os.environ.get("PT_IGNORED_DIRS", f"{os.path.dirname(baseline_path)}, .git").split(",")
-
 curFile = utils.get_absolute_dirname("__file__")
 print(f"Current working file: {curFile}")
 
@@ -88,110 +81,12 @@ def quit():
     print("Bye!")
     sys.exit(1)
 
-#  return existing baselines if they
-#  exist
-def get_baseline_files():
-    existing_baseline_files = []
-
-    for root, _, files in os.walk(baseline_path):
-        for f in files:
-            if utils.is_valid_baseline_file(f):
-                existing_baseline_files.append(os.path.join(root, f))
-            else:
-                print(f"Invalid baseline file, '{f}', detected!")
-
-    return existing_baseline_files
-
-
-#  Allow user to choose baseline file
-#  if more than one exists otherwise use the one
-def selected_baseline_file() -> str:
-    existing_baseline_files = get_baseline_files()
-
-    if len(existing_baseline_files) == 1:
-        return existing_baseline_files[0]
-
-    else:
-        selected_baseline = enquiries.choose("Select a baseline: ", existing_baseline_files)
-        # TODO: check if selected baseline is valid
-        return selected_baseline[0]
-
-
-def hash_worker():
-    """Worker function to process hash calculations"""
-    while True:
-        try:
-            # Get a file path from the queue
-            params = hash_calc_queue.get()
-            
-            (file_path, control_hash) = params
-
-            if file_path is None:
-                break
-            # Calculate the hash of the file
-            file_hash = calc_file_hash(file_path)
-
-            # Put the file hash to the message queue
-            message_queue.put(("File_added", {"file_path": file_path, "file_hash": file_hash, "control_hash": control_hash}))
-
-        finally:
-            hash_calc_queue.task_done()
-
-
-
-
-#  Use the existing baseline or display a menu
-#  to choose from existing ones before monitoring begins
-def load_baseline():
-    try:
-        selected_baseline = selected_baseline_file()
-        config.set("SELECTED_BASELINE_FILE", selected_baseline)
-
-        encoding = utils.get_file_encoding(selected_baseline)
-
-        with open(selected_baseline, "r", encoding=encoding) as file:
-            for file_line in file:
-                fields = file_line.split("|")
-
-                key = fields[0].strip()
-                value = fields[1].strip()
-
-                loaded_baseline[key] = value
-
-        time.sleep(3)
-
-        # Display the absolute path of the directories being monitored
-        directories = json.dumps(config.get("PT_MONITOR_DIRS")).split(",")
-
-        print(f"Directories before adding trailing slash: {directories}")
-
-        for f in directories:
-            # f = utils.get_absolute_dirname(f)
-            # Add trailing slash if not present
-            if not f.endswith("/"):
-                # remove trailing "/"
-                directories[directories.index(f)] = f.strip().rstrip("/")
-
-            directories[directories.index(f)] = f
-
-        directories = ", ".join(directories)
-
-        print(f"{divider}\r\nNow monitoring integrity of file(s) in directories: {directories}...")
-
-        threading.Thread(target=log_listener.message_daemon, args=(message_queue,), daemon=True).start()
-
-        """ MONITORING """
-        threading.Thread(target=start_monitoring_worker, daemon=False).start()
-
-    except Exception as e:
-        print("Error: ", e)
-
 
 def show_menu():
     global choice
 
-    baselines_exist = len(get_baseline_files()) >= 1
-    print(f"{len(get_baseline_files())} baseline files")
+    baselines_exist = len(fh.get_baseline_files()) >= 1
+    print(f"{len(fh.get_baseline_files())} baseline files")
 
     menu_options = [
         "No existing baselines found. Create a new one.",
@@ -207,9 +102,10 @@ def show_menu():
     choice = enquiries.choose("Please select an option", menu_options)
 
     if choice == menu_options[0]:
-        create_new_baseline()
+        fh.create_new_baseline(baseline_path=baseline_path, curFile=curFile)
     elif choice == menu_options[1] and baselines_exist:
-        load_baseline()
+        fh.load_baseline(curFile=curFile, message_queue=message_queue)
+        # print the values of the params for load_baseline
     else:
         quit()
 

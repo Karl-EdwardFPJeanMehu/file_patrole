@@ -17,8 +17,14 @@ class Config:
 
         self.config: dict = {
             "PT_BASELINE_PATH": os.environ.get("PT_BASELINE_PATH", "./baseline"),
-            "PT_MONITOR_DIRS": os.environ.get("PT_MONITOR_DIRS", "./test_dir,./other_test_dir/"),
+            "PT_MONITOR_DIRS": os.environ.get(
+                "PT_MONITOR_DIRS", "./test_dir,./other_test_dir/"
+            ),
         }
+        self.config["PT_IGNORED_DIRS"] = os.environ.get(
+            "PT_IGNORED_DIRS",
+            f"{os.path.dirname(self.config['PT_BASELINE_PATH'])}, .git",
+        )
 
     def get(self, key: str) -> str:
         # Returns the value of the specified key
@@ -38,7 +44,7 @@ class Config:
         self.config[key] = value
 
     def exists(self, key):
-        """ Checks if the specified key exists in the config """
+        """Checks if the specified key exists in the config"""
         if key not in self.config or self.config[key] is None:
             return False
         else:

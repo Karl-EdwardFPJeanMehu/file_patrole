@@ -81,3 +81,6 @@ def get_timestamp(short=False):
 
 def get_absolute_dirname(path):
     return os.path.abspath(os.path.dirname(path))
+
+# Divider
+divider = "*" * 50

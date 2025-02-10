@@ -103,6 +103,7 @@ def show_menu():
 
     if choice == menu_options[0]:
         fh.create_new_baseline(baseline_path=baseline_path, curFile=curFile)
+        fh.load_baseline(curFile=curFile, message_queue=message_queue)
     elif choice == menu_options[1] and baselines_exist:
         fh.load_baseline(curFile=curFile, message_queue=message_queue)
         # print the values of the params for load_baseline

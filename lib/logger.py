@@ -8,13 +8,14 @@ def append_2_file(file_location: str, content: str):
     with open(file_location, "a") as f:
         f.write(content)
 
-def log(log_location: str, file_location: str, user: str, control_hash: str, file_hash: str, description: str):
+def log(log_location: str, file_location: str, user: str, control_hash: str, file_hash: str, description: str, hostname: str):
     #  Obtain current date
     timestamp = get_timestamp()
 
     content = f"""
     Date and Time: {timestamp}
     File Path: {file_location}
+    hostname: {hostname}
     User: {user}
     Control Hash: {control_hash}
     File Hash: {file_hash}

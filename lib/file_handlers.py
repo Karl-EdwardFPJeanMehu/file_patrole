@@ -1,5 +1,6 @@
 import os
 import hashlib
+import platform
 from lib import utils, workers, log_listener
 from config import Config
 import enquiries
@@ -8,6 +9,9 @@ import time
 import json
 
 config = Config()
+
+# Get hostname
+hostname = platform.node()
 
 
 #  Calculate and return the hash of a file
@@ -161,7 +165,7 @@ def load_baseline(curFile, message_queue):
         directories = ", ".join(directories)
 
         print(
-            f"{utils.divider}\r\nNow monitoring integrity of file(s) in directories: {directories}..."
+            f"{utils.divider}\r\nNow monitoring integrity of file(s) on host {hostname} in directories: {directories}..."
         )
 
         threading.Thread(

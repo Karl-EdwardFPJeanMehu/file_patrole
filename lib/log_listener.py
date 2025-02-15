@@ -6,6 +6,10 @@ from .utils import normalize_path, get_timestamp, update_baseline_file, get_abso
 from config import Config
 from typing import Literal
 from termcolor import colored
+import platform
+
+# Get hostname
+hostname = platform.node()
 
 current_date = get_timestamp()
 log_directory = environ.get("PT_LOG_LOCATION", "./")
@@ -50,8 +54,8 @@ def base_file_observer(data, verb="added", color: Literal["green", "magenta", "y
 
     description = (f"The file, {file_name}, found at {file_path} has been {verb} by {current_user}")
 
-    log(log_path, file_path, current_user, control_hash, file_hash, description)
-    print(colored(f"[{current_date}] The file {file_name} has been {verb}! file hash: {file_hash}, control hash: {control_hash}\r\n", color))
+    log(log_path, file_path, current_user, control_hash, file_hash, description, hostname,)
+    print(colored(f"[{current_date}] The file {file_name} has been {verb}! file hash: {file_hash}, control hash: {control_hash}\r\n", color,))
     update_baseline_file(file_path, file_hash)
 
 

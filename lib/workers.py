@@ -31,7 +31,7 @@ def start_monitoring_worker(message_queue, curFile):
         loaded_baseline = json.loads(config.get("PT_LOADED_BASELINE"))
 
         for file in files:
-            file_path, file_hash = [f.strip() for f in file.split("|")]
+            file_path, file_hash = [f.strip() for f in file.rsplit("|", 1)]
 
             file_abs_path = os.path.join(
                 utils.get_absolute_dirname(file_path), os.path.basename(file_path)

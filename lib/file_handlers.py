@@ -7,11 +7,34 @@ import enquiries
 import threading
 import time
 import json
+import stat
 
 config = Config()
 
 # Get hostname
 hostname = platform.node()
+
+
+def get_file_permission(file_path: str) -> str:
+    """ Gets file permission """
+
+    # Get file stat
+    file_stat = os.stat(file_path)
+
+    # Linux campatible octal format
+    linux_permissions = oct(file_stat.st_mode & 0o777)
+
+    # Windows compatible string format
+    is_readable = "r" if file_stat.st_mode & stat.S_IRUSR else "-"
+    is_writable = "w" if file_stat.st_mode & stat.S_IWUSR else "-"
+    is_executable = "x" if file_stat.st_mode & stat.S_IXUSR else "-"
+
+    windows_permissions = f"{is_readable}{is_writable}{is_executable}"
+
+    if platform.system() == "Linux" or platform.system() == "Darwin":
+        return linux_permissions
+    else:
+        return windows_permissions
 
 
 #  Calculate and return the hash of a file

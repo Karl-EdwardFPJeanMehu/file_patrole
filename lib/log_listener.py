@@ -50,9 +50,15 @@ def base_file_observer(data, verb="added", color: Literal["green", "magenta", "y
     file_hash = data["file_hash"]
     file_name = path.basename(data["file_path"])
 
+    file_permission = None
+
+    if "file_permission" in data:
+        file_permission = data["file_permission"]
+
     control_hash = data["control_hash"]
 
     description = (f"The file, {file_name}, found at {file_path} has been {verb} by {current_user}")
+    description = f"The file, {file_name}, with permission {file_permission} found at {file_path} has been {verb} by {current_user}"
 
     log(log_path, file_path, current_user, control_hash, file_hash, description, hostname,)
     print(colored(f"[{current_date}] The file {file_name} has been {verb}! file hash: {file_hash}, control hash: {control_hash}\r\n", color,))

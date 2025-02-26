@@ -3,7 +3,6 @@ import json
 from lib import utils, file_handlers as fh
 from config import Config
 
-
 #  Initialize config
 config = Config()
 
@@ -33,11 +32,21 @@ def start_monitoring_worker(message_queue, curFile):
         for file in files:
             file_path, file_hash = [f.strip() for f in file.rsplit("|", 1)]
 
+            file_permission = None
+
             file_abs_path = os.path.join(
                 utils.get_absolute_dirname(file_path), os.path.basename(file_path)
             )
 
             if file_path not in loaded_baseline and file_abs_path not in last_seen:
+                # Get file permission
+                file_permission = fh.get_file_permission(file_abs_path)
+
+                if file_permission == "None":
+                    raise Exception(
+                        f"Unable to get file permission for {file_abs_path}"
+                    )
+
                 if file_hash not in loaded_baseline.values():
                     # The hash and control hash are
                     # the same for new files
@@ -50,6 +59,7 @@ def start_monitoring_worker(message_queue, curFile):
                                 "file_path": file_abs_path,
                                 "file_hash": file_hash,
                                 "control_hash": control_hash,
+                                "file_permission": file_permission,
                             },
                         )
                     )
@@ -65,6 +75,7 @@ def start_monitoring_worker(message_queue, curFile):
                                 "file_path": file_abs_path,
                                 "file_hash": file_hash,
                                 "control_hash": control_hash,
+                                "file_permission": file_permission,
                             },
                         )
                     )
@@ -82,6 +93,7 @@ def start_monitoring_worker(message_queue, curFile):
                                     "file_path": file_abs_path,
                                     "file_hash": file_hash,
                                     "control_hash": control_hash,
+                                    "file_permission": file_permission,
                                 },
                             )
                         )

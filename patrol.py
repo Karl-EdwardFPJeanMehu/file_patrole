@@ -25,92 +25,41 @@
 
 #  File Integrity Monitor (FIM)
 
-import sys
 import json
-import enquiries
-from lib import log_listener, utils, file_handlers as fh
+from lib import log_listener, utils
 from config import Config
 from queue import Queue
+from cli import parse_arguments, handle_command, show_menu
 
-__author__ = "Karl-Edward F. P. Jean-Mehu"
-__credits__ = "Karl-Edward F. P. Jean-Mehu"
-__copyright__ = "Copyright 2023, Karl-Edward F. P. Jean-Mehu"
-__maintainer__ = "Copyright 2023, Karl-Edward F. P. Jean-Mehu"
-__license__ = "MIT"
-__email__ = "kwebdever@protonmail.com"
-__status__ = "Development"
+if __name__ == "__main__":
 
-"""\
-This is a basic agented,
-standalone File Integrity Monitor
-that checks whether files are either
-deleted, modified or added
+    #  Listen to loger events
+    log_listener.setup_log_event_handlers()
 
-Date: Oct 4, 2023
-"""
+    #  Initialize config
+    config = Config()
 
-#  Listen to loger events
-log_listener.setup_log_event_handlers()
+    # Parse arguments
+    args = parse_arguments()
+    handle_command(args)
 
-#  Initialize config
-config = Config()
+    #  Initialize loaded baseline
+    config.set("PT_LOADED_BASELINE", json.dumps({}))
 
-#  Get baseline path
-baseline_path = str(config.get("PT_BASELINE_PATH"))
+    # Queue for messages to be processed by a separate event handler
+    message_queue = Queue()
 
-#  Initialize choice
-choice = None
+    # Queue for hash calculations to offload heavy processing
+    hash_calc_queue = Queue()
 
-#  Initialize loaded baseline
-config.set("PT_LOADED_BASELINE", json.dumps({}))
+    # Directory to monitor:
+    monitor_dirs = config.get("PT_MONITOR_DIRS")
 
-# Queue for messages to be processed by a separate event handler
-message_queue = Queue()
+    curFile = utils.get_absolute_dirname("__file__")
 
-# Queue for hash calculations to offload heavy processing
-hash_calc_queue = Queue()
+    #  Display the main menu
+    show_menu(curFile, message_queue)
 
-# Directory to monitor:
-monitor_dirs = config.get("PT_MONITOR_DIRS")
+    # Setup logging
+    utils.setup_logging()
 
-curFile = utils.get_absolute_dirname("__file__")
-print(f"Current working file: {curFile}")
-
-
-def quit():
-    print("Bye!")
-    sys.exit(1)
-
-
-def show_menu():
-    global choice
-
-    baselines_exist = len(fh.get_baseline_files()) >= 1
-    print(f"{len(fh.get_baseline_files())} baseline files")
-
-    menu_options = [
-        "No existing baselines found. Create a new one.",
-        "Exit",
-    ]
-
-    #  Add the monitoring menu option
-    #  if baseline files exist
-    if baselines_exist:
-        menu_options[0] = "Create a new baseline."
-        menu_options.insert(1, "Begin monitoring with existing baseline")
-
-    choice = enquiries.choose("Please select an option", menu_options)
-
-    if choice == menu_options[0]:
-        fh.create_new_baseline(baseline_path=baseline_path, curFile=curFile)
-        fh.load_baseline(curFile=curFile, message_queue=message_queue)
-    elif choice == menu_options[1] and baselines_exist:
-        fh.load_baseline(curFile=curFile, message_queue=message_queue)
-        # print the values of the params for load_baseline
-    else:
-        quit()
-
-
-while choice is None:
-    utils.banner()
-    show_menu()

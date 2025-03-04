@@ -8,6 +8,7 @@ import threading
 import time
 import json
 import stat
+import argparse
 
 config = Config()
 
@@ -79,7 +80,7 @@ def list_files_recursively(skip_file_name, directories, ignored_dirs):
 
 
 def create_new_baseline(baseline_path, curFile):
-    print("\r\n\r\n", utils.divider)
+    print(f"\r\n\r\n{utils.divider}")
 
     timestamp = utils.get_timestamp(True)
 
@@ -113,8 +114,7 @@ def create_new_baseline(baseline_path, curFile):
         print("error: ", e)
 
 
-#  return existing baselines if they
-#  exist
+# Returns existing baselines
 def get_baseline_files():
     try:
         existing_baseline_files = []
@@ -124,7 +124,7 @@ def get_baseline_files():
                 if utils.is_valid_baseline_file(f):
                     existing_baseline_files.append(os.path.join(root, f))
                 else:
-                    print(f"Invalid baseline file, '{f}', detected!")
+                    utils.verbose_print(f"Invalid baseline file, '{f}', detected!")
 
         return existing_baseline_files
 
@@ -169,12 +169,11 @@ def load_baseline(curFile, message_queue):
                 l_baseline[key] = value
                 config.set("PT_LOADED_BASELINE", json.dumps(l_baseline))
 
+        file.close()
         time.sleep(3)
 
         # Display the absolute path of the directories being monitored
         directories = json.dumps(config.get("PT_MONITOR_DIRS")).split(",")
-
-        print(f"Directories before adding trailing slash: {directories}")
 
         for f in directories:
             # f = utils.get_absolute_dirname(f)
@@ -185,10 +184,10 @@ def load_baseline(curFile, message_queue):
 
             directories[directories.index(f)] = f
 
-        directories = ", ".join(directories)
+        directories = "\r\n".join(directories).strip('"')
 
         print(
-            f"{utils.divider}\r\nNow monitoring integrity of file(s) on host {hostname} in directories: {directories}..."
+            f"{utils.divider}\r\nNow monitoring integrity of file(s) on host {hostname} in directories: \r\n\r\n{directories}\r\n{utils.divider}\r\n"
         )
 
         threading.Thread(
@@ -206,3 +205,50 @@ def load_baseline(curFile, message_queue):
     except Exception as e:
         print("Failed loading baseline: ", e)
         raise
+
+
+def is_valid_directory(path):
+    """Check whether the specified path is a valid directory"""
+    path = os.path.expanduser(path)
+    if os.path.isdir(path) and path not in config.get("PT_IGNORED_DIRS"):
+        return path
+    else:
+        raise argparse.ArgumentTypeError(f"'{path}' is not a valid directory")
+
+
+def load_and_validate_monitor_file(file_path):
+    """Check whether the specified path is a valid file with list of directories to monitor"""
+
+    file_path = os.path.expanduser(file_path)
+    if os.path.isfile(file_path):
+        # list of valid directories to be monitored
+        results = []
+
+        try:
+            file_extension = file_path.rsplit(".", 1)[1].lower()
+
+            # TODO: validate file contents
+            is_valid_extension = file_extension in [
+                ext.lower() for ext in config.get_valid_monitor_file_types()
+            ]
+
+            if is_valid_extension:
+                with open(file_path, "r") as file:
+                    for line in file:
+                        line = os.path.expanduser(line.strip())
+                        if line and line not in results and is_valid_directory(line):
+                            results.append(line)
+                        else:
+                            raise ValueError(f"'{line}' is a member of ignored directories.")
+
+                if results:
+                    config.set("PT_MONITOR_DIRS", ",".join(results))
+
+            else:
+                raise ValueError(
+                    f"'{file_path}' is not a valid file with list of directories to monitor")
+        except Exception as e:
+            print(f"Monitor file error {e}")
+            raise
+    else:
+        raise argparse.ArgumentTypeError(f"'{file_path}' is not a valid file")

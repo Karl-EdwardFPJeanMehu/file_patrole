@@ -5,6 +5,40 @@ import chardet
 from datetime import datetime, date
 from dateutil.tz import tzlocal
 from config import Config
+from pprint import pprint
+import logging
+import traceback
+
+class TerminatingHandler(logging.StreamHandler):
+    """A logging handler that terminates the program on ERROR or CRITICAL logs."""
+
+    def emit(self, record):
+        super().emit(record)
+        if record.levelno >= logging.ERROR:
+            sys.exit(1)  
+
+class TracebackFormatter(logging.Formatter):
+    def format(self, record):
+        formatted = super().format(record)
+        if record.exc_info:
+            formatted += '\n' + ''.join(traceback.format_exception(*record.exc_info))
+        return formatted
+
+def setup_logging(level=logging.INFO):
+    """Sets up logging with traceback and filename information by default."""
+
+    config = Config()
+
+    details = '%(asctime)s - %(levelname)s - %(filename)s -' if config.is_dev_mode() else '%(levelname)s -'
+
+    handler = TerminatingHandler()
+    formatter = TracebackFormatter(f'{details} %(message)s')
+    handler.setFormatter(formatter)
+    
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
 
 class UpdateBaselineException(Exception):
     pass
@@ -84,3 +118,13 @@ def get_absolute_dirname(path):
 
 # Divider
 divider = "*" * 50
+
+def verbose_print(msg, pretty=False):
+    """ Prints if verbose mode is enabled """
+    config = Config()
+    verbose = config.is_verbose_mode()
+    if verbose:
+        if pretty:
+            pprint(msg)
+        else:
+            print(msg)

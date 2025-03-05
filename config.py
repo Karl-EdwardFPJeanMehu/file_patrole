@@ -8,9 +8,11 @@ class Config:
 
     _valid_monitor_file_types = ["txt"]
 
-    _verbose_mode = False
-
-    _dev_mode = False
+    options = {
+        "dev_mode": False,
+        "verbose_mode": False,
+        "notify": False,
+    }
 
     def __new__(cls):
         if cls._instance is None:
@@ -21,6 +23,11 @@ class Config:
         return self._valid_monitor_file_types
 
     def __init__(self):
+
+        self.options = {
+            "dev_mode": False,
+            "verbose_mode": False
+        }
 
         self.config: dict = {
             "PT_BASELINE_PATH": os.environ.get("PT_BASELINE_PATH", "./baseline"),
@@ -60,17 +67,14 @@ class Config:
             return False
         else:
             return True
+   
+    def get_option(self, key):
+        """ Returns the value of the specified option """
+        if key in self.options:
+            return self.options[key]
+        else:
+            return False
 
-    def enable_verbose_mode(self):
-        self._verbose_mode = True
-
-    def is_verbose_mode(self):
-        return self._verbose_mode 
-
-    def enable_dev_mode(self):
-        """ Sets program to dev mode """
-        self._dev_mode = True
-
-    def is_dev_mode(self):
-        """ Checks whether programming is running in dev mode """
-        return self._dev_mode
+    def enable_option(self, key):
+        """ Enables the specified option """
+        self.options[key] = True

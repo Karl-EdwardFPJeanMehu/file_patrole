@@ -61,9 +61,9 @@ def parse_arguments():
      # Positional arguments
     parser.add_argument("monitor_dirs", type=fh.is_valid_directory, nargs="*", help="<Required>Directories to be monitored.")
 
+    # Optional arguments
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Enable verbose output for additional details.")
 
-    # Optional arguments
     valid_file_types = config.get_valid_monitor_file_types()
     valid_file_types = ", ".join(valid_file_types)
 
@@ -83,8 +83,8 @@ def handle_command(args):
     try:
         # Set verbose
         if (args.verbose):
+            config.enable_option("verbose_mode")
             print("\r\nVERBOSE MODE ENABLED.\r\n")
-            config.enable_verbose_mode()
 
         # Obtain the directories to be monitored
         # from either a positional argument, file, or stdin

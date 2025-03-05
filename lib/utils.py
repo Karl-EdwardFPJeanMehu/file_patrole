@@ -122,7 +122,7 @@ divider = "*" * 50
 def verbose_print(msg, pretty=False):
     """ Prints if verbose mode is enabled """
     config = Config()
-    verbose = config.is_verbose_mode()
+    verbose = config.get_option("verbose_mode")
     if verbose:
         if pretty:
             pprint(msg)

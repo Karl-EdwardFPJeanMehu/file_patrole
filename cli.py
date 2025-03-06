@@ -69,6 +69,9 @@ def parse_arguments():
 
     parser.add_argument("-p", "--path", type=str, help=f"File path, in {valid_file_types} format, containing a list of directories to monitor.")
 
+    parser.add_argument("-n", "--notify", action="store_true", default=False, help="Enable notifications for file changes.")
+
+
    # TODO: 
    # parser.add_argument(
    #     "-l", "--log", type=str, help="List of directories to save log files."
@@ -85,6 +88,11 @@ def handle_command(args):
         if (args.verbose):
             config.enable_option("verbose_mode")
             print("\r\nVERBOSE MODE ENABLED.\r\n")
+
+        # Set notifications
+        if (args.notify):
+            config.enable_option("notify")
+            print("\r\nNOTIFICATIONS ENABLED.\r\n")
 
         # Obtain the directories to be monitored
         # from either a positional argument, file, or stdin

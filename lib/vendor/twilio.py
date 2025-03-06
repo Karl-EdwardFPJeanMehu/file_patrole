@@ -11,7 +11,7 @@ auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 client = Client(account_sid, auth_token)
 
 admin_phone = os.getenv("ADMIN_PHONE")
-from_whatsapp_number = f"whatsapp:{os.getenv("WHATSAPP_FROM_NUMBER")}"
+from_whatsapp_number = f"whatsapp:{os.getenv("TWILIO_WHATSAPP_NUMBER")}"
 to_whatsapp_number = f"whatsapp:{admin_phone}"
 
 async def send_whatsapp(msg):
@@ -26,9 +26,9 @@ async def send_whatsapp(msg):
     )
 
 async def send_sms(msg):
-    admin = os.getenv("WHATSAPP_TO_NUMBER")
+    twilio = os.getenv("TWILIO_VIRTUAL_PHONE")
     client.messages.create(
-        from_=admin_phone,
-        to=admin,
+        from_=twilio,
+        to=admin_phone,
         body=msg,
     )

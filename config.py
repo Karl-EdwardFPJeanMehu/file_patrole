@@ -24,11 +24,6 @@ class Config:
 
     def __init__(self):
 
-        self.options = {
-            "dev_mode": False,
-            "verbose_mode": False
-        }
-
         self.config: dict = {
             "PT_BASELINE_PATH": os.environ.get("PT_BASELINE_PATH", "./baseline"),
             "PT_MONITOR_DIRS": os.environ.get(

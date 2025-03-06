@@ -45,8 +45,7 @@ def _notify(observer):
 
 def create_file_observer(update_function, verb=None, color=None):
 
-    @_notify
-    async def observer(subject, verb=verb, color=color):
+    def observer(subject, verb=verb, color=color):
         file_hash = subject["file_hash"]
         file_path = get_absolute_dirname(subject["file_path"])
         unique_key = f"{verb}_{current_date}_{file_hash}_{file_path}"
@@ -90,12 +89,46 @@ handle_file_copied = create_file_observer(base_file_observer, verb="copied", col
 handle_file_modified = create_file_observer(base_file_observer, verb="modified", color="yellow")
 handle_file_deleted = create_file_observer(base_file_observer, verb="deleted", color="red")
 
+
+# Decorator to subscribe handlers to events
+def _notify(observer):
+    async def wrapper_observer(*args, **kwargs):
+        verbose_print(f"Processing {observer.__name__}...")
+        await observer(*args)  # Normal behavior
+        verbose_print(f"Done processing {observer.__name__}")
+
+    return wrapper_observer
+
+@_notify
+async def notify_whatsapp(*args):
+    try:
+        await tw.send_whatsapp(
+            f"File Patrole : event on host {hostname} at {current_date}"
+        )
+
+    except Exception as e:
+        print(f"NotifyWhatsappError {e}")
+        raise
+
+
+@_notify
+async def notify_sms(*args):
+    try:
+        await tw.send_sms(f"File Patrole : event on host {hostname} at {current_date}")
+        print("Message sent!")
+
+    except Exception as e:
+        print(f"NotifySMSError {e}")
+        raise
+
+
 # Subscribe all handlers to their respective event types
 def setup_log_event_handlers() -> None:
     subscribe("file_added", handle_file_added)
     subscribe("file_copied", handle_file_copied)
     subscribe("file_modified", handle_file_modified)
     subscribe("file_deleted", handle_file_deleted)
+    subscribe("file_added", notify_whatsapp)
 
 
 def message_daemon(_queue) -> None:
